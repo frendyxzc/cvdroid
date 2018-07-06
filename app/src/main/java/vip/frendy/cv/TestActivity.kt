@@ -26,5 +26,12 @@ class TestActivity: AppCompatActivity() {
             //显示图片
             image.setImageBitmap(bwBitmap)
         }
+
+        bokeh.setOnClickListener {
+            //转换
+            val bwBitmap = OpenCVManager.getInstance().toBokeh(bitmap)
+            //显示图片
+            image.setImageBitmap(bwBitmap)
+        }
     }
 }

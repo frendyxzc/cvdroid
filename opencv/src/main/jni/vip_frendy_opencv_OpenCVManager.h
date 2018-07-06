@@ -15,6 +15,9 @@ extern "C" {
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBW
   (JNIEnv *, jobject, jobject);
 
+JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
+        (JNIEnv *, jobject, jobject);
+
 #ifdef __cplusplus
 }
 #endif

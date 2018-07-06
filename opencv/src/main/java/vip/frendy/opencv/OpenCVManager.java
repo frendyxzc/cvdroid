@@ -23,4 +23,7 @@ public class OpenCVManager {
 
     public native Bitmap toBW(Bitmap bitmap);
 
+    //TODO:背景虚化，有待实现
+    public native Bitmap toBokeh(Bitmap bitmap);
+
 }
