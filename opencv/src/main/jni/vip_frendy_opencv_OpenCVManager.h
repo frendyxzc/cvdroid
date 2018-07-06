@@ -16,7 +16,7 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBW
   (JNIEnv *, jobject, jobject);
 
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
-        (JNIEnv *, jobject, jobject);
+        (JNIEnv *, jobject, jobject, jint x, jint y, jint w, jint h, jint blurSize);
 
 #ifdef __cplusplus
 }

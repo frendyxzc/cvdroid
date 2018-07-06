@@ -14,7 +14,7 @@ using namespace cv;
 using namespace std;
 
 //mat转bitmap
-jobject mat_to_bitmap(JNIEnv * env, Mat & src, bool needPremultiplyAlpha, jobject bitmap_config){
+jobject mat_to_bitmap(JNIEnv * env, Mat & src, bool needPremultiplyAlpha, jobject bitmap_config) {
     jclass java_bitmap_class = (jclass)env->FindClass("android/graphics/Bitmap");
     jmethodID mid = env->GetStaticMethodID(java_bitmap_class,
                                            "createBitmap", "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
@@ -95,7 +95,7 @@ void sharpen(const Mat& myImage, Mat& result)
 
 
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBW
-(JNIEnv *env, jobject thiz, jobject bitmap)
+        (JNIEnv *env, jobject thiz, jobject bitmap)
 {
     __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "toBW");
     int ret;
@@ -136,9 +136,9 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBW
 
 }
 
-//TODO:背景虚化，有待实现
+//TODO: 背景虚化，目前通过指定的遮罩来实现，后续可添加边缘检测抠出遮罩
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
-        (JNIEnv *env, jobject thiz, jobject bitmap)
+        (JNIEnv *env, jobject thiz, jobject bitmap, jint x, jint y, jint w, jint h, jint blurSize)
 {
     __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "toBokeh");
     int ret;
@@ -161,15 +161,29 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
 
     Mat mbgra(info.height, info.width, CV_8UC4, pixels);
     //init our output image
+    Mat img = mbgra.clone();
     Mat dst = mbgra.clone();
 
-    //TODO:目前只是部分区域模糊，有待实现背景虚化
+    /* 部分区域模糊
     //选择和截取一段行范围的图片
     Mat target = dst.rowRange(info.height / 3, 2 * info.width / 3);
     //均值滤波
     blur(target, target, Size(85, 85));
     //将opencv图片转化成c图片数据，RGBA转化成灰度图4通道颜色数据
     cvtColor(target, target, CV_RGBA2GRAY, 4);
+    */
+
+    //利用遮罩来实现
+    Mat mask;
+    Rect rect(x, y, w, h);
+    //zero为与image相同大小的全0图像
+    mask = Mat::zeros(img.size(), CV_8UC1);
+    //把mask图像的rect区域设为255，即rect大小的白色块
+    mask(rect).setTo(255);
+    //均值滤波dst
+    blur(dst, dst, Size(blurSize, blurSize));
+    //把img与mask合并保存到dst中，即img与mask的非0区域合并
+    img.copyTo(dst, mask);
 
     //get source bitmap's config
     jclass java_bitmap_class = (jclass)env->FindClass("android/graphics/Bitmap");
