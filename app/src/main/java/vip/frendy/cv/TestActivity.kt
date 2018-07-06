@@ -13,6 +13,8 @@ import vip.frendy.opencv.OpenCVManager
  */
 class TestActivity: AppCompatActivity() {
 
+    private var mSeekbarType = 0;
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
@@ -32,11 +34,22 @@ class TestActivity: AppCompatActivity() {
         bokeh.setOnClickListener {
             updateBokeh(bitmap, 10)
             seekbar.setProgress(10)
+            mSeekbarType = 0
+        }
+
+        bokehCircle.setOnClickListener {
+            updateBokehCircle(bitmap, 10)
+            seekbar.setProgress(10)
+            mSeekbarType = 1
         }
 
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                updateBokeh(bitmap, progress)
+                if(mSeekbarType == 0) {
+                    updateBokeh(bitmap, progress)
+                } else if(mSeekbarType == 1) {
+                    updateBokehCircle(bitmap, progress)
+                }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -48,6 +61,14 @@ class TestActivity: AppCompatActivity() {
         //转换
         val bwBitmap = OpenCVManager.getInstance().toBokeh(bitmap,
                 35, 35, 60, 60, blurSize)
+        //显示图片
+        image.setImageBitmap(bwBitmap)
+    }
+
+    fun updateBokehCircle(bitmap: Bitmap, _blurSize: Int) {
+        val blurSize = if(_blurSize <= 0) 0 else _blurSize
+        //转换
+        val bwBitmap = OpenCVManager.getInstance().toBokehWithCircle(bitmap, 40, blurSize)
         //显示图片
         image.setImageBitmap(bwBitmap)
     }

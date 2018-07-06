@@ -25,5 +25,6 @@ public class OpenCVManager {
 
     //TODO: 背景虚化，目前通过指定的遮罩来实现，后续可添加边缘检测抠出遮罩
     public native Bitmap toBokeh(Bitmap bitmap, int x, int y, int w, int h, int blurSize);
+    public native Bitmap toBokehWithCircle(Bitmap bitmap, int r, int blurSize);
 
 }

@@ -93,6 +93,14 @@ void sharpen(const Mat& myImage, Mat& result)
     result.col(result.cols-1).setTo(Scalar(0));
 }
 
+//圆形遮罩
+Mat circularMask(Mat img, int row, int col, int r) {
+    Mat cirMask = img.clone();
+    cirMask.setTo(Scalar::all(0));
+    circle(cirMask, Point(col, row), r, Scalar(255, 255, 255), -1, 8, 0);
+    return cirMask;
+}
+
 
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBW
         (JNIEnv *env, jobject thiz, jobject bitmap)
@@ -180,6 +188,51 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
     mask = Mat::zeros(img.size(), CV_8UC1);
     //把mask图像的rect区域设为255，即rect大小的白色块
     mask(rect).setTo(255);
+    //均值滤波dst
+    blur(dst, dst, Size(blurSize, blurSize));
+    //把img与mask合并保存到dst中，即img与mask的非0区域合并
+    img.copyTo(dst, mask);
+
+    //get source bitmap's config
+    jclass java_bitmap_class = (jclass)env->FindClass("android/graphics/Bitmap");
+    jmethodID mid = env->GetMethodID(java_bitmap_class, "getConfig", "()Landroid/graphics/Bitmap$Config;");
+    jobject bitmap_config = env->CallObjectMethod(bitmap, mid);
+    jobject _bitmap = mat_to_bitmap(env, dst, false, bitmap_config);
+
+    AndroidBitmap_unlockPixels(env, bitmap);
+    return _bitmap;
+
+}
+
+JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokehWithCircle
+        (JNIEnv *env, jobject thiz, jobject bitmap, jint r, jint blurSize)
+{
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "toBokehWithCircle");
+    int ret;
+    AndroidBitmapInfo info;
+    void* pixels = 0;
+
+    if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"AndroidBitmap_getInfo() failed ! error=%d", ret);
+        return NULL;
+    }
+
+    if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888 )
+    {       __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"Bitmap format is not RGBA_8888!");
+        return NULL;
+    }
+
+    if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"AndroidBitmap_lockPixels() failed ! error=%d", ret);
+    }
+
+    Mat mbgra(info.height, info.width, CV_8UC4, pixels);
+    //init our output image
+    Mat img = mbgra.clone();
+    Mat dst = mbgra.clone();
+
+    //利用圆形遮罩来实现
+    Mat mask = circularMask(img, img.rows / 2, img.cols / 2, r);
     //均值滤波dst
     blur(dst, dst, Size(blurSize, blurSize));
     //把img与mask合并保存到dst中，即img与mask的非0区域合并
