@@ -43,6 +43,12 @@ class TestActivity: AppCompatActivity() {
             mSeekbarType = 1
         }
 
+        enlarge.setOnClickListener {
+            val bigBitmap = OpenCVManager.getInstance().toEnlarge(bitmap, 80, 80, 40, 30);
+            //显示图片
+            image.setImageBitmap(bigBitmap)
+        }
+
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if(mSeekbarType == 0) {
