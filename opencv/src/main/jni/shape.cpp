@@ -102,30 +102,6 @@ jintArray Java_vip_frendy_opencv_OpenCVManager_toEnlarge
     return result;
 }
 
-//拉伸变换
-cv::Mat cvMatRect2Tetra(cv::Mat mtxSrc, int iDstX1, int iDstY1, int iDstX2, int iDstY2,
-                        int iDstX3, int iDstY3, int iDstX4, int iDstY4, int iDstWidth, int iDstHeight)
-{
-    cv::Mat mtxDst;
-    std::vector<cv::Point2f> src_corners(4);
-    std::vector<cv::Point2f> dst_corners(4);
-
-    src_corners[0]= cv::Point2f(0, 0);
-    src_corners[1]= cv::Point2f(mtxSrc.cols - 1, 0);
-    src_corners[2]= cv::Point2f(0, mtxSrc.rows - 1);
-    src_corners[3]= cv::Point2f(mtxSrc.cols - 1, mtxSrc.rows - 1);
-
-    dst_corners[0] = cv::Point2f(iDstX1, iDstY1);
-    dst_corners[1] = cv::Point2f(iDstX2, iDstY2);
-    dst_corners[2] = cv::Point2f(iDstX3, iDstY3);
-    dst_corners[3] = cv::Point2f(iDstX4, iDstY4);
-
-    cv::Mat transMtx = cv::getPerspectiveTransform(src_corners, dst_corners);
-    cv::warpPerspective(mtxSrc, mtxDst, transMtx, cv::Size(iDstWidth, iDstHeight));
-
-    return mtxDst;
-}
-
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toStretch
         (JNIEnv *env, jobject thiz, jobject bitmap)
 {
@@ -152,8 +128,22 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toStretch
     // init our output image
     Mat dst = mbgra.clone();
 
-    dst = cvMatRect2Tetra(dst, dst.cols / 4, 0, dst.cols * 3 / 4, 0,
-                          0, dst.rows -1, dst.cols - 1, dst.rows - 1, dst.cols - 1, dst.rows - 1);
+    // 拉伸变换
+    std::vector<cv::Point2f> src_corners(4);
+    std::vector<cv::Point2f> dst_corners(4);
+
+    src_corners[0]= cv::Point2f(0, 0);
+    src_corners[1]= cv::Point2f(dst.cols - 1, 0);
+    src_corners[2]= cv::Point2f(0, dst.rows - 1);
+    src_corners[3]= cv::Point2f(dst.cols - 1, dst.rows - 1);
+
+    dst_corners[0] = cv::Point2f(dst.cols / 4, 0);
+    dst_corners[1] = cv::Point2f(dst.cols * 3 / 4, 0);
+    dst_corners[2] = cv::Point2f(0, dst.rows - 1);
+    dst_corners[3] = cv::Point2f(dst.cols - 1, dst.rows - 1);
+
+    cv::Mat transMtx = cv::getPerspectiveTransform(src_corners, dst_corners);
+    cv::warpPerspective(dst, dst, transMtx, cv::Size(dst.cols - 1, dst.rows - 1));
 
     //get source bitmap's config
     jclass java_bitmap_class = (jclass)env->FindClass("android/graphics/Bitmap");
