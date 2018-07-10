@@ -13,7 +13,7 @@ import vip.frendy.opencv.OpenCVManager
  */
 class TestActivity: AppCompatActivity() {
 
-    private var mSeekbarType = 0;
+    private var mSeekbarType = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,20 +33,20 @@ class TestActivity: AppCompatActivity() {
 
         bokeh.setOnClickListener {
             updateBokeh(bitmap, 10)
-            seekbar.setProgress(10)
             mSeekbarType = 0
+            seekbar.setProgress(10)
         }
 
         bokehCircle.setOnClickListener {
             updateBokehCircle(bitmap, 10)
-            seekbar.setProgress(10)
             mSeekbarType = 1
+            seekbar.setProgress(10)
         }
 
         enlarge.setOnClickListener {
-            val bigBitmap = OpenCVManager.getInstance().toEnlarge(bitmap, 80, 80, 40, 30);
-            //显示图片
-            image.setImageBitmap(bigBitmap)
+            updateEnlarge(bitmap, 30)
+            mSeekbarType = 2
+            seekbar.setProgress(30)
         }
 
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -55,6 +55,8 @@ class TestActivity: AppCompatActivity() {
                     updateBokeh(bitmap, progress)
                 } else if(mSeekbarType == 1) {
                     updateBokehCircle(bitmap, progress)
+                } else if(mSeekbarType == 2) {
+                    updateEnlarge(bitmap, progress)
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -77,5 +79,12 @@ class TestActivity: AppCompatActivity() {
         val bwBitmap = OpenCVManager.getInstance().toBokehWithCircle(bitmap, 40, blurSize)
         //显示图片
         image.setImageBitmap(bwBitmap)
+    }
+
+    fun updateEnlarge(bitmap: Bitmap, strength: Int) {
+        //转换
+        val bigBitmap = OpenCVManager.getInstance().toEnlarge(bitmap, 80, 80, 40, strength);
+        //显示图片
+        image.setImageBitmap(bigBitmap)
     }
 }

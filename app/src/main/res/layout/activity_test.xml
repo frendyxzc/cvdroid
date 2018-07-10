@@ -14,28 +14,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <Button
+        <TextView
             android:id="@+id/bw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BW"/>
+            android:layout_margin="1dp"
+            android:background="@android:color/darker_gray"
+            android:padding="8dp"
+            android:text="BW" />
 
-        <Button
+        <TextView
             android:id="@+id/bokeh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:background="@android:color/darker_gray"
+            android:padding="8dp"
             android:text="bokeh"/>
 
-        <Button
+        <TextView
             android:id="@+id/bokehCircle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:background="@android:color/darker_gray"
+            android:padding="8dp"
             android:text="bokeh Circle"/>
 
-        <Button
+        <TextView
             android:id="@+id/enlarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:background="@android:color/darker_gray"
+            android:padding="8dp"
             android:text="enlarge"/>
     </LinearLayout>
 
