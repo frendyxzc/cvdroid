@@ -13,51 +13,69 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/bw"
-            android:layout_width="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="1dp"
-            android:background="@android:color/darker_gray"
-            android:padding="8dp"
-            android:text="BW" />
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/bw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="BW" />
 
-        <TextView
-            android:id="@+id/bokeh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="1dp"
-            android:background="@android:color/darker_gray"
-            android:padding="8dp"
-            android:text="bokeh"/>
+            <TextView
+                android:id="@+id/bokeh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="bokeh"/>
 
-        <TextView
-            android:id="@+id/bokehCircle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="1dp"
-            android:background="@android:color/darker_gray"
-            android:padding="8dp"
-            android:text="bokeh Circle"/>
+            <TextView
+                android:id="@+id/bokehCircle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="bokeh Circle"/>
 
-        <TextView
-            android:id="@+id/enlarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="1dp"
-            android:background="@android:color/darker_gray"
-            android:padding="8dp"
-            android:text="enlarge"/>
+            <TextView
+                android:id="@+id/enlarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="enlarge"/>
 
-        <TextView
-            android:id="@+id/enlarge_native"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/enlarge_native"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="enlarge native"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="1dp"
-            android:background="@android:color/darker_gray"
-            android:padding="8dp"
-            android:text="enlarge native"/>
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/shape"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="shape"/>
+        </LinearLayout>
     </LinearLayout>
 
     <SeekBar

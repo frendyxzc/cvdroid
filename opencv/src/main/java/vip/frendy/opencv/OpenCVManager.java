@@ -35,4 +35,7 @@ public class OpenCVManager {
     public Bitmap toEnlarge(Bitmap bitmap, int x, int y, int radius, int strength) {
         return ShapeHelper.enlarge(bitmap, x, y, radius, strength);
     }
+
+    //拉伸
+    public native Bitmap toStretch(Bitmap bitmap);
 }

@@ -11,7 +11,8 @@
 #include <opencv2/imgproc/imgproc_c.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <android/bitmap.h>
-#define APPNAME "cvdroid"
+#include "common.h"
+#define APPNAME "shape"
 using namespace cv;
 using namespace std;
 
@@ -101,3 +102,66 @@ jintArray Java_vip_frendy_opencv_OpenCVManager_toEnlarge
     return result;
 }
 
+//拉伸变换
+cv::Mat cvMatRect2Tetra(cv::Mat mtxSrc, int iDstX1, int iDstY1, int iDstX2, int iDstY2,
+                        int iDstX3, int iDstY3, int iDstX4, int iDstY4, int iDstWidth, int iDstHeight)
+{
+    cv::Mat mtxDst;
+    std::vector<cv::Point2f> src_corners(4);
+    std::vector<cv::Point2f> dst_corners(4);
+
+    src_corners[0]= cv::Point2f(0, 0);
+    src_corners[1]= cv::Point2f(mtxSrc.cols - 1, 0);
+    src_corners[2]= cv::Point2f(0, mtxSrc.rows - 1);
+    src_corners[3]= cv::Point2f(mtxSrc.cols - 1, mtxSrc.rows - 1);
+
+    dst_corners[0] = cv::Point2f(iDstX1, iDstY1);
+    dst_corners[1] = cv::Point2f(iDstX2, iDstY2);
+    dst_corners[2] = cv::Point2f(iDstX3, iDstY3);
+    dst_corners[3] = cv::Point2f(iDstX4, iDstY4);
+
+    cv::Mat transMtx = cv::getPerspectiveTransform(src_corners, dst_corners);
+    cv::warpPerspective(mtxSrc, mtxDst, transMtx, cv::Size(iDstWidth, iDstHeight));
+
+    return mtxDst;
+}
+
+JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toStretch
+        (JNIEnv *env, jobject thiz, jobject bitmap)
+{
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "toStretch");
+    int ret;
+    AndroidBitmapInfo info;
+    void* pixels = 0;
+
+    if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "AndroidBitmap_getInfo() failed ! error=%d", ret);
+        return NULL;
+    }
+
+    if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888 )
+    {       __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "Bitmap format is not RGBA_8888!");
+        return NULL;
+    }
+
+    if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "AndroidBitmap_lockPixels() failed ! error=%d", ret);
+    }
+
+    Mat mbgra(info.height, info.width, CV_8UC4, pixels);
+    // init our output image
+    Mat dst = mbgra.clone();
+
+    dst = cvMatRect2Tetra(dst, dst.cols / 4, 0, dst.cols * 3 / 4, 0,
+                          0, dst.rows -1, dst.cols - 1, dst.rows - 1, dst.cols - 1, dst.rows - 1);
+
+    //get source bitmap's config
+    jclass java_bitmap_class = (jclass)env->FindClass("android/graphics/Bitmap");
+    jmethodID mid = env->GetMethodID(java_bitmap_class, "getConfig", "()Landroid/graphics/Bitmap$Config;");
+    jobject bitmap_config = env->CallObjectMethod(bitmap, mid);
+    jobject _bitmap = mat_to_bitmap(env,dst,false,bitmap_config);
+
+    AndroidBitmap_unlockPixels(env, bitmap);
+    return _bitmap;
+
+}

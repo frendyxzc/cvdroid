@@ -9,8 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     vip_frendy_opencv_OpenCVManager
- * Method:    toBW
- * Signature: (Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;
  */
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBW
   (JNIEnv *, jobject, jobject);
@@ -23,6 +21,9 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokehWithCircle
 
 JNIEXPORT jintArray JNICALL Java_vip_frendy_opencv_OpenCVManager_toEnlarge
         (JNIEnv *, jobject, jintArray, jint, jint, jint, jint, jint, jfloat);
+
+JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toStretch
+        (JNIEnv *, jobject, jobject);
 
 #ifdef __cplusplus
 }
