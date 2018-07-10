@@ -7,7 +7,7 @@ OPENCV_LIB_TYPE:=STATIC
 include jni/sdk/native/jni/OpenCV.mk
 
 LOCAL_MODULE    := CVDroid
-LOCAL_SRC_FILES := cvdroid.cpp
+LOCAL_SRC_FILES := cvdroid.cpp shape.cpp
 LOCAL_LDLIBS    += -lm -llog -landroid
 LOCAL_LDFLAGS += -ljnigraphics
 

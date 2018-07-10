@@ -32,21 +32,33 @@ class TestActivity: AppCompatActivity() {
         }
 
         bokeh.setOnClickListener {
-            updateBokeh(bitmap, 10)
             mSeekbarType = 0
-            seekbar.setProgress(10)
+            seekbar.progress = 10
+            seekbar.max = 60
         }
 
         bokehCircle.setOnClickListener {
-            updateBokehCircle(bitmap, 10)
             mSeekbarType = 1
-            seekbar.setProgress(10)
+            seekbar.progress = 10
+            seekbar.max = 60
         }
 
         enlarge.setOnClickListener {
-            updateEnlarge(bitmap, 30)
             mSeekbarType = 2
-            seekbar.setProgress(30)
+            seekbar.progress = 50
+            seekbar.max = 100
+        }
+
+        enlarge_native.setOnClickListener {
+            mSeekbarType = 3
+            val width = bitmap.width
+            val height = bitmap.height
+            val buf = IntArray(width * height)
+            bitmap.getPixels(buf, 0, width, 1, 1, width - 1, height - 1)
+            val result = OpenCVManager.getInstance().toEnlarge(buf, width, height, 80, 80, 40, 1f)
+            val bigBitmap = Bitmap.createBitmap(result, width, height, Bitmap.Config.ARGB_8888)
+            //显示图片
+            image.setImageBitmap(bigBitmap)
         }
 
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -56,7 +68,7 @@ class TestActivity: AppCompatActivity() {
                 } else if(mSeekbarType == 1) {
                     updateBokehCircle(bitmap, progress)
                 } else if(mSeekbarType == 2) {
-                    updateEnlarge(bitmap, progress)
+                    updateEnlarge(bitmap, 50 - progress)
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}

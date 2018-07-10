@@ -21,6 +21,9 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokehWithCircle
         (JNIEnv *, jobject, jobject, jint r, jint blurSize);
 
+JNIEXPORT jintArray JNICALL Java_vip_frendy_opencv_OpenCVManager_toEnlarge
+        (JNIEnv *, jobject, jintArray, jint, jint, jint, jint, jint, jfloat);
+
 #ifdef __cplusplus
 }
 #endif

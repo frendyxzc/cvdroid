@@ -31,6 +31,7 @@ public class OpenCVManager {
     public native Bitmap toBokehWithCircle(Bitmap bitmap, int r, int blurSize);
 
     //局部放大
+    public native int[] toEnlarge(int[] buffer, int width, int heigth, int centerX, int centerY, int radius, float multiple);
     public Bitmap toEnlarge(Bitmap bitmap, int x, int y, int radius, int strength) {
         return ShapeHelper.enlarge(bitmap, x, y, radius, strength);
     }
