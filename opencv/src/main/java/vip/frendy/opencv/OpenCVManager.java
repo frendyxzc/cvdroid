@@ -36,6 +36,7 @@ public class OpenCVManager {
         return ShapeHelper.enlarge(bitmap, x, y, radius, strength);
     }
 
-    //拉伸
+    //变形
     public native Bitmap toStretch(Bitmap bitmap);
+    public native Bitmap toCylinder(Bitmap bitmap);
 }

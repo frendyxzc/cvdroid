@@ -69,6 +69,14 @@ class TestActivity: AppCompatActivity() {
             image.setImageBitmap(shapeBitmap)
         }
 
+        cylinder.setOnClickListener {
+            mSeekbarType = 5
+            //转换
+            val newBitmap = OpenCVManager.getInstance().toCylinder(bitmap)
+            //显示图片
+            image.setImageBitmap(newBitmap)
+        }
+
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if(mSeekbarType == 0) {

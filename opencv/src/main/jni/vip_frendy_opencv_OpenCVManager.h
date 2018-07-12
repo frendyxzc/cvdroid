@@ -25,6 +25,9 @@ JNIEXPORT jintArray JNICALL Java_vip_frendy_opencv_OpenCVManager_toEnlarge
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toStretch
         (JNIEnv *, jobject, jobject);
 
+JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toCylinder
+        (JNIEnv *, jobject, jobject);
+
 #ifdef __cplusplus
 }
 #endif

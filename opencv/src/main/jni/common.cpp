@@ -14,6 +14,29 @@
 using namespace cv;
 using namespace std;
 
+int min(int x, int y) {
+    return (x <= y) ? x : y;
+}
+int max(int x,int y) {
+    return (x >= y) ? x : y;
+}
+int alpha(int color) {
+    return (color >> 24) & 0xFF;
+}
+int red(int color) {
+    return (color >> 16) & 0xFF;
+}
+int green(int color) {
+    return (color >> 8) & 0xFF;
+}
+int blue(int color) {
+    return color & 0xFF;
+}
+int ARGB(int alpha, int red, int green, int blue) {
+    return (alpha << 24) | (red << 16) | (green << 8) | blue;
+}
+
+
 //mat转bitmap
 jobject mat_to_bitmap(JNIEnv * env, Mat & src, bool needPremultiplyAlpha, jobject bitmap_config) {
     jclass java_bitmap_class = (jclass)env->FindClass("android/graphics/Bitmap");
@@ -68,4 +91,45 @@ jobject mat_to_bitmap(JNIEnv * env, Mat & src, bool needPremultiplyAlpha, jobjec
         env->ThrowNew(je, "Unknown exception in JNI code {nMatToBitmap}");
         return bitmap;
     }
+}
+
+
+Vec4b get_subpixel4(const cv::Mat& src, cv::Point2f pt) {
+    //Simple bilinear interpolation
+    const int x = (int)pt.x;
+    const int y = (int)pt.y;
+
+    const int x0 = cv::borderInterpolate(x,     src.cols, cv::BORDER_REFLECT_101);
+    const int x1 = cv::borderInterpolate(x + 1, src.cols, cv::BORDER_REFLECT_101);
+    const int y0 = cv::borderInterpolate(y,     src.rows, cv::BORDER_REFLECT_101);
+    const int y1 = cv::borderInterpolate(y + 1, src.rows, cv::BORDER_REFLECT_101);
+
+    const float a = pt.x - (float)x;
+    const float c = pt.y - (float)y;
+
+    const float one_minus_a = 1.f - a;
+    const float one_minus_c = 1.f - c;
+
+    const Vec4b y0_x0 = src.at<Vec4b>(y0, x0);
+    const Vec4b y1_x0 = src.at<Vec4b>(y1, x0);
+    const Vec4b y0_x1 = src.at<Vec4b>(y0, x1);
+    const Vec4b y1_x1 = src.at<Vec4b>(y1, x1);
+
+    const uchar b = (uchar)cvRound(
+            (one_minus_a * (float)(y0_x0[0]) + a * (float)(y0_x1[0])) * one_minus_c +
+            (one_minus_a * (float)(y1_x0[0]) + a * (float)(y1_x1[0])) * c
+    );
+    const uchar g = (uchar)cvRound(
+            (one_minus_a * (float)(y0_x0[1]) + a * (float)(y0_x1[1])) * one_minus_c +
+            (one_minus_a * (float)(y1_x0[1]) + a * (float)(y1_x1[1])) * c
+    );
+    const uchar r = (uchar)cvRound(
+            (one_minus_a * (float)(y0_x0[2]) + a * (float)(y0_x1[2])) * one_minus_c +
+            (one_minus_a * (float)(y1_x0[2]) + a * (float)(y1_x1[2])) * c
+    );
+    const uchar t = (uchar)cvRound(
+            (one_minus_a * (float)(y0_x0[3]) + a * (float)(y0_x1[3])) * one_minus_c +
+            (one_minus_a * (float)(y1_x0[3]) + a * (float)(y1_x1[3])) * c
+    );
+    return Vec4b(b, g, r, t);
 }

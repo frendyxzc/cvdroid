@@ -75,6 +75,15 @@
                 android:background="@android:color/darker_gray"
                 android:padding="8dp"
                 android:text="shape"/>
+
+            <TextView
+                android:id="@+id/cylinder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="cylinder"/>
         </LinearLayout>
     </LinearLayout>
 

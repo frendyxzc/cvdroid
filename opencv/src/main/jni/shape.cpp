@@ -17,28 +17,6 @@ using namespace cv;
 using namespace std;
 
 
-int min(int x, int y) {
-    return (x <= y) ? x : y;
-}
-int max(int x,int y){
-    return (x >= y) ? x : y;
-}
-int alpha(int color) {
-    return (color >> 24) & 0xFF;
-}
-int red(int color) {
-    return (color >> 16) & 0xFF;
-}
-int green(int color) {
-    return (color >> 8) & 0xFF;
-}
-int blue(int color) {
-    return color & 0xFF;
-}
-int ARGB(int alpha, int red, int green, int blue) {
-    return (alpha << 24) | (red << 16) | (green << 8) | blue;
-}
-
 jintArray Java_vip_frendy_opencv_OpenCVManager_toEnlarge
         (JNIEnv* env,jobject thiz, jintArray buf, jint width, jint height, jint centerX, jint centerY, jint radius, jfloat multiple)
 {
@@ -125,10 +103,10 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toStretch
     }
 
     Mat mbgra(info.height, info.width, CV_8UC4, pixels);
-    // init our output image
+    //init our output image
     Mat dst = mbgra.clone();
 
-    // 拉伸变换
+    //拉伸变换
     std::vector<cv::Point2f> src_corners(4);
     std::vector<cv::Point2f> dst_corners(4);
 
@@ -144,6 +122,106 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toStretch
 
     cv::Mat transMtx = cv::getPerspectiveTransform(src_corners, dst_corners);
     cv::warpPerspective(dst, dst, transMtx, cv::Size(dst.cols - 1, dst.rows - 1));
+
+    //get source bitmap's config
+    jclass java_bitmap_class = (jclass)env->FindClass("android/graphics/Bitmap");
+    jmethodID mid = env->GetMethodID(java_bitmap_class, "getConfig", "()Landroid/graphics/Bitmap$Config;");
+    jobject bitmap_config = env->CallObjectMethod(bitmap, mid);
+    jobject _bitmap = mat_to_bitmap(env,dst,false,bitmap_config);
+
+    AndroidBitmap_unlockPixels(env, bitmap);
+    return _bitmap;
+
+}
+
+//变形-圆筒
+Mat* cylinder(Mat& src)
+{
+    //Project from a cylindrical background onto a flat screen
+    //Keeps width of the stretched image same as the input image
+    const int height = src.rows;
+    const int width  = src.cols;
+
+    const float r  = (float)width * 0.5f;    //cylinder radius ((width / 2) <= r < inf)
+    const float zf = hypot((float)height, (float)width);
+    //distance from camera to screen (default: hypothenuse)
+    const float xf = (float)width * 0.5f;    //distance from camera to left edge
+    const float yf = (float)height * 0.75f;  //distance from camera to ceiling
+
+    //precompute some constants
+    const float half_width = (float)width * 0.5f;
+    const float zfr = cos(half_width / r); //distance from cylinder center to projection plane
+    const float xfr = sin(half_width / r);
+    const float x_scale = r * xfr / half_width;
+    const int adj_height = (int)ceil((float)height / x_scale);
+
+    Mat *dst = new cv::Mat(cv::Mat::zeros(adj_height, width, src.type()));
+
+    for (int i = 0; i < width; i++)
+    {
+        //X-axis (columns)
+        const float zb = r * (cos((half_width - (float)i) / r) - zfr);
+        const float z_ratio = (zb + zf) / zf;
+
+        const float i_src = r * asin(x_scale * ((float)i - xf) * z_ratio / r) + half_width;
+        for (int j = 0; j < adj_height; j++)
+        {
+            //Y-axis (rows)
+            const float j_src = yf + z_ratio * (x_scale * (float)j - yf);
+            if (i_src >= 0.0f && i_src <= (float)width &&
+                j_src >= 0.0f && j_src <= (float)height)
+            {
+                dst->at<Vec4b>(j, i) = get_subpixel4(src, cv::Point2f(i_src, j_src));
+            }
+        }
+    }
+    return dst;
+}
+
+JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toCylinder
+        (JNIEnv *env, jobject thiz, jobject bitmap)
+{
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "toCylinder");
+    int ret;
+    AndroidBitmapInfo info;
+    void* pixels = 0;
+
+    if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "AndroidBitmap_getInfo() failed ! error=%d", ret);
+        return NULL;
+    }
+
+    if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888 )
+    {       __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "Bitmap format is not RGBA_8888!");
+        return NULL;
+    }
+
+    if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "AndroidBitmap_lockPixels() failed ! error=%d", ret);
+    }
+
+    Mat mbgra(info.height, info.width, CV_8UC4, pixels);
+    //init our output image
+    Mat dst = mbgra.clone();
+
+    dst = *(cylinder(dst));
+
+    //拉伸变换
+//    std::vector<cv::Point2f> src_corners(4);
+//    std::vector<cv::Point2f> dst_corners(4);
+//
+//    src_corners[0]= cv::Point2f(0, 0);
+//    src_corners[1]= cv::Point2f(dst.cols - 1, 0);
+//    src_corners[2]= cv::Point2f(0, dst.rows - 1);
+//    src_corners[3]= cv::Point2f(dst.cols - 1, dst.rows - 1);
+//
+//    dst_corners[0] = cv::Point2f(dst.cols / 4, 0);
+//    dst_corners[1] = cv::Point2f(dst.cols * 3 / 4, 0);
+//    dst_corners[2] = cv::Point2f(0, dst.rows - 1);
+//    dst_corners[3] = cv::Point2f(dst.cols - 1, dst.rows - 1);
+//
+//    cv::Mat transMtx = cv::getPerspectiveTransform(src_corners, dst_corners);
+//    cv::warpPerspective(dst, dst, transMtx, cv::Size(dst.cols - 1, dst.rows - 1));
 
     //get source bitmap's config
     jclass java_bitmap_class = (jclass)env->FindClass("android/graphics/Bitmap");
