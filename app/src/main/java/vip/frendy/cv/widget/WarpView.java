@@ -15,8 +15,8 @@ public class WarpView extends View {
     private Bitmap bitmap;
 
     //定义两个常量,这两个常量指定该图片横向,纵向上都被划分为20格
-    private final int WIDTH = 20;
-    private final int HEIGHT = 20;
+    private final int WIDTH = 60;
+    private final int HEIGHT = 60;
 
     //记录该图片上包含441个顶点
     private final int COUNT = (WIDTH + 1) * (HEIGHT + 1);
@@ -99,7 +99,7 @@ public class WarpView extends View {
     }
 
     //作用范围半径
-    private int r = 100;
+    private int r = 150;
     public void warp2(float startX, float startY, float endX, float endY) {
         //计算拖动距离
         float ddPull = (endX - startX) * (endX - startX) + (endY - startY) * (endY - startY);

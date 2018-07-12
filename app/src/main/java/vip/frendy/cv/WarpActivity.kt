@@ -2,6 +2,8 @@ package vip.frendy.cv
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
+import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_warp.*
 import vip.frendy.cv.widget.WarpView
 
@@ -17,20 +19,46 @@ class WarpActivity : Activity() {
 
         content.addView(warpView)
 
-        warp.setOnClickListener {
-            toWarp(200f, 100f, 50f)
-        }
+        seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                toWarpLeft(200f, 200f, progress.toFloat())
+                toWarpRight(600f, 200f, progress.toFloat())
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
     }
 
-    private fun toWarp(startX: Float, startY: Float, strength: Float) {
+    private fun toWarpLeft(startX: Float, startY: Float, strength: Float) {
         var _startX = startX
         var _startY = startY
         var _step = 1
 
-        while (_step < 100) {
-            warpView?.warp2(_startX, _startY, _startX + strength, _startY + strength)
+        while (_step < 200) {
+            val _endX = _startX + strength
+            val _endY = _startY
 
-            _startY ++
+            warpView?.warp2(_startX, _startY, _endX, _endY)
+            Log.e("warp", "** warp left : ($_startX, $_startY) - ($_endX, $_endY)")
+
+            _startY += 1
+            _step ++
+        }
+    }
+
+    private fun toWarpRight(startX: Float, startY: Float, strength: Float) {
+        var _startX = startX
+        var _startY = startY
+        var _step = 1
+
+        while (_step < 200) {
+            val _endX = _startX - strength
+            val _endY = _startY
+
+            warpView?.warp2(_startX, _startY, _endX, _endY)
+            Log.e("warp", "** warp right : ($_startX, $_startY) - ($_endX, $_endY)")
+
+            _startY += 1
             _step ++
         }
     }

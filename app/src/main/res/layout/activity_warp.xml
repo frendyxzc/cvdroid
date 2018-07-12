@@ -11,11 +11,17 @@
         android:layout_height="match_parent">
     </LinearLayout>
 
-    <Button
-        android:id="@+id/warp"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:text="warp"/>
+        android:orientation="vertical">
 
+        <SeekBar
+            android:id="@+id/seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:min="1" />
+    </LinearLayout>
 </FrameLayout>
