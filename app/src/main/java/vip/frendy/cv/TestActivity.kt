@@ -1,5 +1,6 @@
 package vip.frendy.cv
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -75,6 +76,10 @@ class TestActivity: AppCompatActivity() {
             val newBitmap = OpenCVManager.getInstance().toCylinder(bitmap)
             //显示图片
             image.setImageBitmap(newBitmap)
+        }
+
+        warp.setOnClickListener {
+            startActivity(Intent(this, WarpActivity::class.java))
         }
 
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

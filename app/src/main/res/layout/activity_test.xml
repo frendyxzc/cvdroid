@@ -84,6 +84,15 @@
                 android:background="@android:color/darker_gray"
                 android:padding="8dp"
                 android:text="cylinder"/>
+
+            <TextView
+                android:id="@+id/warp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="warp"/>
         </LinearLayout>
     </LinearLayout>
 
