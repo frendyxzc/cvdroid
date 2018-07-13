@@ -16,14 +16,21 @@ class TestActivity: AppCompatActivity() {
 
     private var mSeekbarType = -1
 
+    private var mTouchX = 35f
+    private var mTouchY = 35f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
 
         //测试图片
-        val bitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
+        val bitmap = BitmapFactory.decodeResource(resources, R.mipmap.girl)
         //显示原图
         image.setImageBitmap(bitmap)
+        image.setOnImageViewTouchListener { event ->
+            mTouchX = event.getX()
+            mTouchY = event.getY()
+        }
 
         bw.setOnClickListener {
             //转换
@@ -35,13 +42,13 @@ class TestActivity: AppCompatActivity() {
         bokeh.setOnClickListener {
             mSeekbarType = 0
             seekbar.progress = 10
-            seekbar.max = 60
+            seekbar.max = 20
         }
 
         bokehCircle.setOnClickListener {
             mSeekbarType = 1
             seekbar.progress = 10
-            seekbar.max = 60
+            seekbar.max = 20
         }
 
         enlarge.setOnClickListener {
@@ -99,24 +106,29 @@ class TestActivity: AppCompatActivity() {
 
     fun updateBokeh(bitmap: Bitmap, _blurSize: Int) {
         val blurSize = if(_blurSize <= 0) 0 else _blurSize
+        val blurSizeTransit = blurSize * 0.5
         //转换
-        val bwBitmap = OpenCVManager.getInstance().toBokeh(bitmap,
-                35, 35, 60, 60, blurSize, 1)
+        val tmpBitmap = OpenCVManager.getInstance().toBokeh(bitmap,
+                mTouchX.toInt(), mTouchY.toInt(), 200, 200, blurSizeTransit.toInt(), 1)
+        val newBitmap = OpenCVManager.getInstance().toBokeh(tmpBitmap,
+                mTouchX.toInt(), mTouchY.toInt(), 400, 400, blurSize, 1)
         //显示图片
-        image.setImageBitmap(bwBitmap)
+        image.setImageBitmap(newBitmap)
     }
 
     fun updateBokehCircle(bitmap: Bitmap, _blurSize: Int) {
         val blurSize = if(_blurSize <= 0) 0 else _blurSize
+        val blurSizeTransit = blurSize * 0.5
         //转换
-        val bwBitmap = OpenCVManager.getInstance().toBokehWithCircle(bitmap, 40, blurSize, 1)
+        val tmpBitmap = OpenCVManager.getInstance().toBokehWithCircle(bitmap, 100, blurSizeTransit.toInt(), 1)
+        val newBitmap = OpenCVManager.getInstance().toBokehWithCircle(tmpBitmap, 200, blurSize, 1)
         //显示图片
-        image.setImageBitmap(bwBitmap)
+        image.setImageBitmap(newBitmap)
     }
 
     fun updateEnlarge(bitmap: Bitmap, strength: Int) {
         //转换
-        val bigBitmap = OpenCVManager.getInstance().toEnlarge(bitmap, 80, 80, 40, strength);
+        val bigBitmap = OpenCVManager.getInstance().toEnlarge(bitmap, mTouchX.toInt(), mTouchY.toInt(), 80, strength);
         //显示图片
         image.setImageBitmap(bigBitmap)
     }
