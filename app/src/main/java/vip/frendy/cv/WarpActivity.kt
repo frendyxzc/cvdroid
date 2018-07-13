@@ -36,6 +36,12 @@ class WarpActivity : Activity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
+        girl.setOnClickListener {
+            content.removeAllViews()
+            warpView = WarpView(this, R.mipmap.girl)
+            content.addView(warpView)
+        }
     }
 
     private fun toWarpLeft(startX: Float, startY: Float, strength: Float) {
