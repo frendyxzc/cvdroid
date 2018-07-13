@@ -13,6 +13,7 @@ import android.view.View;
  */
 public class WarpView extends View {
     private Bitmap bitmap;
+    private OnWarpViewTouchListener mListener;
 
     //定义两个常量,这两个常量指定该图片横向,纵向上都被划分为20格
     private final int WIDTH = 60;
@@ -95,6 +96,10 @@ public class WarpView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         warp(event.getX(), event.getY());
+
+        if(mListener != null) {
+            mListener.onWarpViewTouched(event);
+        }
         return true;
     }
 
@@ -125,5 +130,14 @@ public class WarpView extends View {
             }
         }
         invalidate();
+    }
+
+
+    public void setOnWarpViewTouchListener(OnWarpViewTouchListener listener) {
+        mListener = listener;
+    }
+
+    public interface OnWarpViewTouchListener {
+        void onWarpViewTouched(MotionEvent event);
     }
 }

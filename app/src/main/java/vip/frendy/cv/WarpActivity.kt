@@ -11,18 +11,25 @@ class WarpActivity : Activity() {
 
     private var warpView: WarpView? = null
 
+    private var mTouchX = 200f
+    private var mTouchY = 600f
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_warp)
 
-        warpView = WarpView(this, R.drawable.image)
-
+        warpView = WarpView(this, R.mipmap.girl)
         content.addView(warpView)
+
+        warpView?.setOnWarpViewTouchListener { event ->
+            mTouchX = event.getX()
+            mTouchY = event.getY()
+        }
 
         seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                toWarpLeft(200f, 200f, progress.toFloat())
-                toWarpRight(600f, 200f, progress.toFloat())
+                toWarpLeft(200f, 600f, progress.toFloat())
+                toWarpRight(600f, 600f, progress.toFloat())
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -30,18 +37,12 @@ class WarpActivity : Activity() {
 
         seekbar2.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                toWarpLeft(600f, 200f, progress.toFloat())
-                toWarpRight(200f, 200f, progress.toFloat())
+                toWarpLeft(600f, 680f, progress.toFloat())
+                toWarpRight(200f, 680f, progress.toFloat())
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-
-        girl.setOnClickListener {
-            content.removeAllViews()
-            warpView = WarpView(this, R.mipmap.girl)
-            content.addView(warpView)
-        }
     }
 
     private fun toWarpLeft(startX: Float, startY: Float, strength: Float) {
@@ -49,7 +50,7 @@ class WarpActivity : Activity() {
         var _startY = startY
         var _step = 1
 
-        while (_step < 200) {
+        while (_step < 100) {
             val _endX = _startX + strength
             val _endY = _startY
 
