@@ -14,10 +14,10 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBW
   (JNIEnv *, jobject, jobject);
 
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
-        (JNIEnv *, jobject, jobject, jint x, jint y, jint w, jint h, jint blurSize);
+        (JNIEnv *, jobject, jobject, jint x, jint y, jint w, jint h, jint blurSize, jint type);
 
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokehWithCircle
-        (JNIEnv *, jobject, jobject, jint r, jint blurSize);
+        (JNIEnv *, jobject, jobject, jint r, jint blurSize, jint type);
 
 JNIEXPORT jintArray JNICALL Java_vip_frendy_opencv_OpenCVManager_toEnlarge
         (JNIEnv *, jobject, jintArray, jint, jint, jint, jint, jint, jfloat);

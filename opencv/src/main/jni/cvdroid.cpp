@@ -90,7 +90,7 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBW
 
 //TODO: 背景虚化，目前通过指定的遮罩来实现，后续可添加边缘检测抠出遮罩
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
-        (JNIEnv *env, jobject thiz, jobject bitmap, jint x, jint y, jint w, jint h, jint blurSize)
+        (JNIEnv *env, jobject thiz, jobject bitmap, jint x, jint y, jint w, jint h, jint blurSize, jint type)
 {
     __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "toBokeh");
     int ret;
@@ -132,8 +132,15 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
     mask = Mat::zeros(img.size(), CV_8UC1);
     //把mask图像的rect区域设为255，即rect大小的白色块
     mask(rect).setTo(255);
-    //均值滤波dst
-    blur(dst, dst, Size(blurSize, blurSize));
+    //滤波dst
+    if(type == 1) {
+        //高斯
+        if(blurSize % 2 == 0) blurSize += 1;
+        GaussianBlur(dst, dst, Size(blurSize, blurSize), 0);
+    } else {
+        //均值
+        blur(dst, dst, Size(blurSize, blurSize));
+    }
     //把img与mask合并保存到dst中，即img与mask的非0区域合并
     img.copyTo(dst, mask);
 
@@ -149,7 +156,7 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokeh
 }
 
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokehWithCircle
-        (JNIEnv *env, jobject thiz, jobject bitmap, jint r, jint blurSize)
+        (JNIEnv *env, jobject thiz, jobject bitmap, jint r, jint blurSize, jint type)
 {
     __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "toBokehWithCircle");
     int ret;
@@ -177,8 +184,15 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokehWithCircle
 
     //利用圆形遮罩来实现
     Mat mask = circularMask(img, img.rows / 2, img.cols / 2, r);
-    //均值滤波dst
-    blur(dst, dst, Size(blurSize, blurSize));
+    //滤波dst
+    if(type == 1) {
+        //高斯
+        if(blurSize % 2 == 0) blurSize += 1;
+        GaussianBlur(dst, dst, Size(blurSize, blurSize), 0);
+    } else {
+        //均值
+        blur(dst, dst, Size(blurSize, blurSize));
+    }
     //把img与mask合并保存到dst中，即img与mask的非0区域合并
     img.copyTo(dst, mask);
 

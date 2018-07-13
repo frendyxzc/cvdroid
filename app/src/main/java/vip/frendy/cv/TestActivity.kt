@@ -101,7 +101,7 @@ class TestActivity: AppCompatActivity() {
         val blurSize = if(_blurSize <= 0) 0 else _blurSize
         //转换
         val bwBitmap = OpenCVManager.getInstance().toBokeh(bitmap,
-                35, 35, 60, 60, blurSize)
+                35, 35, 60, 60, blurSize, 1)
         //显示图片
         image.setImageBitmap(bwBitmap)
     }
@@ -109,7 +109,7 @@ class TestActivity: AppCompatActivity() {
     fun updateBokehCircle(bitmap: Bitmap, _blurSize: Int) {
         val blurSize = if(_blurSize <= 0) 0 else _blurSize
         //转换
-        val bwBitmap = OpenCVManager.getInstance().toBokehWithCircle(bitmap, 40, blurSize)
+        val bwBitmap = OpenCVManager.getInstance().toBokehWithCircle(bitmap, 40, blurSize, 1)
         //显示图片
         image.setImageBitmap(bwBitmap)
     }
