@@ -44,5 +44,5 @@ public class OpenCVManager {
     public native int classifier(Bitmap bitmap, String cascadePath);
 
     //手势识别
-    public native int getFingerCount(Bitmap bitmap, int threshold);
+    public native int getFingerCount(Bitmap bitmap, int threshold, float widthScale, float heightScale);
 }

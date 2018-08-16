@@ -270,7 +270,7 @@ JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_classifier
 }
 
 JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_getFingerCount
-        (JNIEnv *env, jobject thiz, jobject bitmap, jint iThreshold)
+        (JNIEnv *env, jobject thiz, jobject bitmap, jint iThreshold, jfloat widthScale, jfloat heightScale)
 {
     __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "getFingerCount");
     int ret;
@@ -299,9 +299,9 @@ JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_getFingerCount
     GaussianBlur(dst, dst, Size(3, 3), 0);
 
     ColorBlobDetector* detector = new ColorBlobDetector();
-    detector->setPoint(cv::Point(info.width / 2, info.height / 2));
+    detector->setPoint(cv::Point(info.width * widthScale, info.height * heightScale));
 
-    ProcessImageData _temp(cv::Point(info.width / 2, info.height / 2));
+    ProcessImageData _temp(cv::Point(info.width * widthScale, info.height * heightScale));
     detector->setHsvColor(_temp.calculateHsv(dst));
     detector->processImage(dst);
     retCount = detector->mContours.size();

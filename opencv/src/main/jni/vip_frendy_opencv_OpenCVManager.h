@@ -32,7 +32,7 @@ JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_classifier
         (JNIEnv *, jobject, jobject, jstring);
 
 JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_getFingerCount
-        (JNIEnv *, jobject, jobject, jint);
+        (JNIEnv *, jobject, jobject, jint, jfloat, jfloat);
 
 #ifdef __cplusplus
 }

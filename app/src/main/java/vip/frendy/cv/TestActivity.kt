@@ -115,7 +115,7 @@ class TestActivity: AppCompatActivity() {
         FileUtils.copyFileFromRawToOthers(applicationContext, R.raw.cascade, targetPath)
 
         finger.setOnClickListener {
-            val size = OpenCVManager.getInstance().getFingerCount(bitmap, 4000)
+            val size = OpenCVManager.getInstance().getFingerCount(bitmap, 4000, 0.5f, 0.5f)
             toast("finger size is $size")
         }
     }
