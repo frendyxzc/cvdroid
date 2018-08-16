@@ -93,6 +93,15 @@
                 android:background="@android:color/darker_gray"
                 android:padding="8dp"
                 android:text="warp"/>
+
+            <TextView
+                android:id="@+id/finger"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="@android:color/darker_gray"
+                android:padding="8dp"
+                android:text="finger"/>
         </LinearLayout>
     </LinearLayout>
 

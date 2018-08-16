@@ -39,4 +39,10 @@ public class OpenCVManager {
     //变形
     public native Bitmap toStretch(Bitmap bitmap);
     public native Bitmap toCylinder(Bitmap bitmap);
+
+    //分类
+    public native int classifier(Bitmap bitmap, String cascadePath);
+
+    //手势识别
+    public native int getFingerCount(Bitmap bitmap, int threshold);
 }

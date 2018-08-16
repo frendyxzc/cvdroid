@@ -28,6 +28,12 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toStretch
 JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toCylinder
         (JNIEnv *, jobject, jobject);
 
+JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_classifier
+        (JNIEnv *, jobject, jobject, jstring);
+
+JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_getFingerCount
+        (JNIEnv *, jobject, jobject, jint);
+
 #ifdef __cplusplus
 }
 #endif

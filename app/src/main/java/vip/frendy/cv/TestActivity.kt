@@ -6,8 +6,11 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.SeekBar
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_test.*
+import vip.frendy.cv.util.FileUtils
 import vip.frendy.opencv.OpenCVManager
+import java.io.File
 
 /**
  * Created by frendy on 2018/7/6.
@@ -24,7 +27,7 @@ class TestActivity: AppCompatActivity() {
         setContentView(R.layout.activity_test)
 
         //测试图片
-        val bitmap = BitmapFactory.decodeResource(resources, R.mipmap.girl)
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
         //显示原图
         image.setImageBitmap(bitmap)
         image.setOnImageViewTouchListener { event ->
@@ -102,6 +105,19 @@ class TestActivity: AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
+        initHandDetector(bitmap)
+    }
+
+    private fun initHandDetector(bitmap: Bitmap) {
+        val targetPath = FileUtils.getModelPath()
+        runOnUiThread { Toast.makeText(this, "Copy model to " + targetPath, Toast.LENGTH_SHORT).show() }
+        FileUtils.copyFileFromRawToOthers(applicationContext, R.raw.cascade, targetPath)
+
+        finger.setOnClickListener {
+            val size = OpenCVManager.getInstance().getFingerCount(bitmap, 4000)
+            toast("finger size is $size")
+        }
     }
 
     fun updateBokeh(bitmap: Bitmap, _blurSize: Int) {
@@ -131,5 +147,9 @@ class TestActivity: AppCompatActivity() {
         val bigBitmap = OpenCVManager.getInstance().toEnlarge(bitmap, mTouchX.toInt(), mTouchY.toInt(), 80, strength);
         //显示图片
         image.setImageBitmap(bigBitmap)
+    }
+
+    fun toast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }

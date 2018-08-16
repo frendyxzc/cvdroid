@@ -20,7 +20,7 @@ OPENCV_LOCAL_C_INCLUDES:="$(LOCAL_PATH)/$(OPENCV_THIS_DIR)/include/opencv" "$(LO
 
 # set modules here
 #OPENCV_MODULES:=shape ml dnn objdetect superres stitching videostab calib3d features2d highgui videoio imgcodecs video photo imgproc flann core
-OPENCV_MODULES:=imgproc core
+OPENCV_MODULES:=objdetect imgproc core
 
 OPENCV_SUB_MK:=$(call my-dir)/OpenCV-$(TARGET_ARCH_ABI).mk
 

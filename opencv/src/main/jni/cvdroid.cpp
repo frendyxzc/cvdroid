@@ -7,8 +7,11 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc_c.h>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
 #include <android/bitmap.h>
 #include "common.h"
+#include "ColorBlobDetector.h"
+#include "ProcessImageData.h"
 #define APPNAME "cvdroid"
 using namespace cv;
 using namespace std;
@@ -205,4 +208,160 @@ JNIEXPORT jobject JNICALL Java_vip_frendy_opencv_OpenCVManager_toBokehWithCircle
     AndroidBitmap_unlockPixels(env, bitmap);
     return _bitmap;
 
+}
+
+int detect(Mat frame, CascadeClassifier cascade) {
+    Mat frame_gray;
+    vector<Rect> detections;
+
+    cvtColor(frame, frame_gray, CV_BGR2GRAY);
+
+    cascade.detectMultiScale(frame_gray, detections,
+                             1.01, 10, 0 | CV_HAAR_SCALE_IMAGE, Size(40, 90));
+    int detected = (int)detections.size();
+    for (int i = 0; i < detected; i++) {
+        int width2 = detections[i].width / 2;
+        int height2 = detections[i].height / 2;
+        Point center(detections[i].x + width2, detections[i].y + height2);
+        ellipse(frame, center, Size(width2, height2), 0, 0, 360,
+                Scalar(255, 0, 255), 2, 5, 0);
+    }
+    return(detected);
+}
+
+JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_classifier
+        (JNIEnv *env, jobject thiz, jobject bitmap, jstring cascadePath)
+{
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "classifier");
+    int ret;
+    AndroidBitmapInfo info;
+    void* pixels = 0;
+
+    if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"AndroidBitmap_getInfo() failed ! error=%d", ret);
+        return NULL;
+    }
+
+    if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888 )
+    {       __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"Bitmap format is not RGBA_8888!");
+        return NULL;
+    }
+
+    if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"AndroidBitmap_lockPixels() failed ! error=%d", ret);
+    }
+
+    Mat mbgra(info.height, info.width, CV_8UC4, pixels);
+    // init our output count
+    int retCount = 0;
+    Mat dst = mbgra.clone();
+
+    const char* cascade_path = env->GetStringUTFChars(cascadePath, 0);
+
+    CascadeClassifier cascade;
+    if (!cascade.load(std::string(cascade_path))) {
+        return(-1);
+    }
+    retCount = detect(dst, cascade);
+    env->ReleaseStringUTFChars(cascadePath, cascade_path);
+
+    AndroidBitmap_unlockPixels(env, bitmap);
+    return retCount;
+}
+
+JNIEXPORT jint JNICALL Java_vip_frendy_opencv_OpenCVManager_getFingerCount
+        (JNIEnv *env, jobject thiz, jobject bitmap, jint iThreshold)
+{
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "getFingerCount");
+    int ret;
+    AndroidBitmapInfo info;
+    void* pixels = 0;
+
+    if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"AndroidBitmap_getInfo() failed ! error=%d", ret);
+        return NULL;
+    }
+
+    if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888 )
+    {       __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"Bitmap format is not RGBA_8888!");
+        return NULL;
+    }
+
+    if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"AndroidBitmap_lockPixels() failed ! error=%d", ret);
+    }
+
+    Mat mbgra(info.height, info.width, CV_8UC4, pixels);
+    // init our output count
+    int retCount = 0;
+    Mat dst = mbgra.clone();
+
+    GaussianBlur(dst, dst, Size(3, 3), 0);
+
+    ColorBlobDetector* detector = new ColorBlobDetector();
+    detector->setPoint(cv::Point(info.width / 2, info.height / 2));
+
+    ProcessImageData _temp(cv::Point(info.width / 2, info.height / 2));
+    detector->setHsvColor(_temp.calculateHsv(dst));
+    detector->processImage(dst);
+    retCount = detector->mContours.size();
+
+    if(retCount <= 0) {
+        AndroidBitmap_unlockPixels(env, bitmap);
+        return retCount;
+    }
+
+    RotatedRect rect = minAreaRect(detector->mContours[0]);
+    double boundWidth = rect.size.width;
+    double boundHeight = rect.size.height;
+    int boundPos = 0;
+
+    for (int i = 1; i < detector->mContours.size(); i++) {
+        rect = minAreaRect(detector->mContours[i]);
+        if (rect.size.width * rect.size.height > boundWidth * boundHeight) {
+            boundWidth = rect.size.width;
+            boundHeight = rect.size.height;
+            boundPos = i;
+        }
+    }
+
+    Rect boundRect = boundingRect(detector->mContours[boundPos]);
+    double a = boundRect.br().y - boundRect.tl().y;
+    a = a * 0.7;
+    a = boundRect.tl().y + a;
+
+    std::vector<Point> pointMat = std::vector<Point>();
+    approxPolyDP(detector->mContours[boundPos], pointMat, 3, true);
+    detector->mContours[boundPos] = pointMat;
+
+    std::vector<int> hull = std::vector<int>();
+    std::vector<Vec4i> convexDefect = std::vector<Vec4i>();
+    convexHull(detector->mContours[boundPos], hull);
+
+    if(hull.size() < 3) {
+        AndroidBitmap_unlockPixels(env, bitmap);
+        return 0;
+    }
+
+    convexityDefects(detector->mContours[boundPos], hull, convexDefect);
+
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"convexDefect size = %d", convexDefect.size());
+
+    retCount = 0;
+
+    for (int j = 0; j < convexDefect.size(); j++) {
+        Vec4i &def = convexDefect.at(j);
+
+        Point farPoint = detector->mContours[boundPos][def[2]];
+        int depth = def[3];
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"depth = %d", depth);
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"farPoint.y = %d, a = %f", farPoint.y, a);
+        if(depth > iThreshold && farPoint.y < a){
+            retCount += 1;
+            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"ret count = %d", retCount);
+        }
+    }
+
+    AndroidBitmap_unlockPixels(env, bitmap);
+    return retCount;
 }
